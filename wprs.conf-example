@@ -1,0 +1,23 @@
+
+# Register new app at: https://developer.wordpress.com
+client_id = 123456789
+client_secret = "abcdefghijklmnopqrstuvwxyz0123456789"
+
+#------------------------------------------------
+# Site publishing to
+#------------------------------------------------
+# get blog_id from source of site
+blog_id = 63216473
+
+# need to confirm redirect URL?
+blog_url = "https://teamtinker.wordpress.com"
+
+# author username from site
+author = "mkaz"
+
+# this needs to be updated from authentication
+token = ""
+
+# these don't need changing
+auth_url = "https://public-api.wordpress.com/oauth2/authorize"
+token_url = "https://public-api.wordpress.com/oauth2/token"
