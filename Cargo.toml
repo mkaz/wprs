@@ -1,5 +1,5 @@
 [package]
-name = "wprust"
+name = "wprs"
 version = "0.1.0"
 authors = ["Marcus Kazmierczak <marcus@mkaz.com>"]
 edition = "2018"
