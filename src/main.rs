@@ -32,7 +32,7 @@ struct PostResponse {
 }
 
 fn main() {
-    let matches = App::new("wprs")
+    let args = App::new("wprs")
         .version("0.1.0")
         .about("A command-line WordPress client")
         .author("Marcus Kazmierczak")
@@ -40,18 +40,33 @@ fn main() {
             Arg::new("config")
                 .about("Configuration file")
                 .short('c')
-                .long("config"),
+                .long("config")
+                .takes_value(true),
         )
         .subcommand(App::new("auth").about("use to login"))
         .subcommand(App::new("test").about("use to test connection"))
-        .subcommand(App::new("create").about("use to create new post"))
+        .subcommand(
+            App::new("create")
+                .about("use to create new post")
+                .arg(
+                    Arg::new("publish")
+                        .about("Publish immediately (default: Draft)")
+                        .long("publish"),
+                )
+                .arg(
+                    Arg::new("file")
+                        .about("HTML file to publish")
+                        .required(true)
+                        .takes_value(true),
+                ),
+        )
         .get_matches();
 
     // read in config
     let config_file = fs::read_to_string("wprs.conf").unwrap();
     let config: Config = toml::from_str(&config_file).unwrap();
 
-    match matches.subcommand_name() {
+    match args.subcommand_name() {
         Some("auth") => {
             auth(config.clone());
         }
@@ -59,7 +74,11 @@ fn main() {
             connection_test(config.clone());
         }
         Some("create") => {
-            create_post(config.clone());
+            if let Some(matches) = args.subcommand_matches("create") {
+                let publish = matches.is_present("publish");
+                let filename = matches.value_of("file").unwrap();
+                create_post(config.clone(), filename, publish);
+            }
         }
         _ => {
             println!("Command not found");
@@ -67,17 +86,19 @@ fn main() {
     }
 }
 
-fn create_post(config: Config) {
+fn create_post(config: Config, filename: &str, publish: bool) {
     // Create new post
     let apiurl = format!(
         "https://public-api.wordpress.com/rest/v1.1/sites/{}/posts/new",
         config.blog_id
     );
 
-    // read from template
-    let post_content = fs::read_to_string("post-template.html").unwrap();
+    let status = if publish { "publish" } else { "draft" };
 
     // TODO: improve post template to allow dynamic content
+    // - set title from file
+    let post_content = fs::read_to_string(filename).unwrap();
+
     // scheduled to run Monday morning
     // so plus two days is the Wednesday date
     let dt_wed: DateTime<Utc> = Utc::now() + Duration::days(2);
@@ -89,7 +110,7 @@ fn create_post(config: Config) {
         // TODO: pull from post-template?
         .text("tags", "team-meeting")
         // TODO: add flag for create subcommand
-        .text("status", "draft");
+        .text("status", status);
 
     let response = Client::new()
         .post(&apiurl)
