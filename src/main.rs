@@ -35,6 +35,13 @@ fn main() {
                         .long("publish"),
                 )
                 .arg(
+                    Arg::new("title")
+                        .about("Title for post")
+                        .long("title")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
                     Arg::new("file")
                         .about("HTML file to publish")
                         .required(true)
@@ -56,8 +63,9 @@ fn main() {
         Some("create") => {
             if let Some(matches) = args.subcommand_matches("create") {
                 let publish = matches.is_present("publish");
+                let title = matches.value_of("title").unwrap();
                 let filename = matches.value_of("file").unwrap();
-                posts::create(config.clone(), filename, publish);
+                posts::create(config.clone(), title.to_string(), filename, publish);
             }
         }
         _ => {

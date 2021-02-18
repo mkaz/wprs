@@ -1,4 +1,3 @@
-use chrono::{DateTime, Duration, Utc};
 use reqwest::blocking::multipart;
 use reqwest::blocking::Client;
 use serde::Deserialize;
@@ -10,7 +9,7 @@ struct PostResponse {
     short_url: String,
 }
 
-pub fn create(config: super::config::Config, filename: &str, publish: bool) {
+pub fn create(config: super::config::Config, title: String, filename: &str, publish: bool) {
     // Create new post
     let apiurl = format!(
         "https://public-api.wordpress.com/rest/v1.1/sites/{}/posts/new",
@@ -25,8 +24,6 @@ pub fn create(config: super::config::Config, filename: &str, publish: bool) {
 
     // scheduled to run Monday morning
     // so plus two days is the Wednesday date
-    let dt_wed: DateTime<Utc> = Utc::now() + Duration::days(2);
-    let title = format!("Tinker Weekly: {}", dt_wed.format("%b %e, %Y"));
     let form = multipart::Form::new()
         .text("author", config.author)
         .text("title", title)
