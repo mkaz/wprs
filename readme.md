@@ -2,6 +2,19 @@
 
 A very rough command-line client for WordPress, a toy project I use for scheduling a weekly agenda meeting.
 
+I schedule the post using cron and set the date in the title using the date command:
+
+```
+date -d "Next Wednesday" +"%b %d, %Y"
+```
+
+The entry looks like:
+
+```
+wprs create --publish --title "Tinker Weekly: $(date -d 'Next Wednesday' +'%b %d, %Y')" template.html
+```
+
+
 ## Setup
 
 To get it to work you need to:
